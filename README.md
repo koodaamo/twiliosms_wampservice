@@ -5,7 +5,7 @@ Install the twiliosms_wampservice package in the same Python environment where y
 
 Then, send SMS messages by making a RPC call to ```services.tele.sms.send``, with two parameters: recipient phone number (in international format), and the SMS message body.
 
-Component configuration follows (you may need to change router address, port and path):
+Component configuration follows:
 
 ```yaml
 - classname: twiliosms_wampservice.SMSSender
@@ -20,3 +20,5 @@ Component configuration follows (you may need to change router address, port and
     type: websocket
     url: ws://127.0.0.1:8080/ws
   type: class
+
+Note that you may have to change the router address, port and path settings if your router is not listening at localhost port 8080, at "/ws".
