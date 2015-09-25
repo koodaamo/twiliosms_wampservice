@@ -20,5 +20,6 @@ Component configuration follows:
     type: websocket
     url: ws://127.0.0.1:8080/ws
   type: class
+```
 
 Note that you may have to change the router address, port and path settings if your router is not listening at localhost port 8080, at "/ws".
