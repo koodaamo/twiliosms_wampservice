@@ -22,4 +22,4 @@ Component configuration follows:
   type: class
 ```
 
-Note that you may have to change the router address, port and path settings if your router is not listening at localhost port 8080, at "/ws".
+Note that you may have to change the router address, port and path settings in the above configuration, if your router is not listening at localhost port 8080, at "/ws".
