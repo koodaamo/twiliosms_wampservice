@@ -11,7 +11,6 @@ def app(config):
     # hosted in a WAMPlet container such as a Crossbar.io worker.
     ##
     if config:
-        raise Exception("SMSSENDER CALLED")
         return SMSSender(config)
     else:
         # if no config given, return a description of this WAMPlet ..
