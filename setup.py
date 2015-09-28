@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.2'
+version = '0.4'
 
 setup(name='twiliosms_wampservice',
       version=version,
@@ -17,12 +17,16 @@ setup(name='twiliosms_wampservice',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          # -*- Extra requirements: -*-
+         "treq",
+         "twilio",
+         "klein"
       ],
       entry_points={
 	        'autobahn.twisted.wamplet': [
-	            'twiliosms = twiliosms_wampservice:app'
+	            'twilio_sms_sender = twiliosms_wampservice:sender',
+	            'twilio_sms_receiver = twiliosms_wampservice:receiver'
 	        ],
       },
+      tests_require = ["mock",],
       test_suite = "tests",
 )

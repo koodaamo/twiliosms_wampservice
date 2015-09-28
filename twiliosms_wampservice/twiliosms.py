@@ -1,14 +1,56 @@
 import sys
-from os import environ
 import datetime
+import cgi
+import os
 
+from twisted.web.server import Site
 from twisted.logger import Logger, globalLogPublisher
 from twisted.logger import textFileLogObserver
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, succeed, fail, returnValue
+from twisted.internet import reactor
 import treq
 from autobahn.twisted.wamp import ApplicationSession, ApplicationRunner
+from klein import route, Klein
+from twilio.util import RequestValidator
 
 SMS_PROCEDURE = u"services.tele.sms.send"
+SMS_EVENT = u"services.tele.sms.new"
+
+class SMSReceiver(ApplicationSession):
+
+   webapp = Klein()
+   logger = Logger()
+
+   def __init__(self, config):
+      ApplicationSession.__init__(self)
+      self.t_token = config.extra["twilio-token"]
+      self.t_receiver = config.extra["twilio-receiver"]
+      self.t_validator = RequestValidator(self.t_token)
+      self.logger.info("receiving SMS at %s" % '/'+ SMS_EVENT.replace('.','/'))
+
+   def onConnect(self):
+      self.join("realm1")
+      reactor.listenTCP(9090, Site(self.webapp.resource()))
+
+   def validSignature(self, request):
+      signature = request.getHeader("X-Twilio-Signature")
+      if not signature:
+         return False
+      return self.t_validator.validate(self.t_receiver, request.args, signature)
+
+   @webapp.route('/'+ SMS_EVENT.replace('.','/'), methods=['POST'])
+   @inlineCallbacks
+   def receive(self, request):
+      "publish incoming new SMS as (sender, recipient, message)"
+      if self.validSignature(request):
+         form = request.args
+         msg = (form["sender"], form["recipient"], form["message"])
+         yield self.session.publish(SMS_EVENT, msg)
+         returnValue(succeed(None))
+      else:
+         request.setResponseCode(401)
+         signature = request.getHeader("X-Twilio-Signature") or "(no signature)"
+         returnValue("Missing or invalid signature: %s" % signature)
 
 
 class SMSSender(ApplicationSession):
